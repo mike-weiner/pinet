@@ -50,7 +50,7 @@ To do.
 
 To do.
 
-## Establishing a Telegraf to Collect Network Information
+## Establishing a Telegraf Service to Collect Network Information
 
 To do.
 
@@ -82,6 +82,6 @@ To do.
 
 To do.
 
-## Tunneling our Local Grafana to a Public Domain Name
+## Tunneling our Local Grafana Dashboard to a Public Domain Name
 
 To do.
