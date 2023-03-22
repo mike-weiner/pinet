@@ -84,21 +84,75 @@ This process should take no longer than a few minutes to complete.
 
 We are now ready to begin to install and setup the infrastructure that is going to support your network monitoring dashboard!
 
-## Establishing a Prometheus Data Scraper
+## Creating a Prometheus Service
 
-To do.
+**Prometheus Website:** [https://prometheus.io](https://prometheus.io)
+
+**Github Repository:** [https://github.com/prometheus/prometheus/](https://github.com/prometheus/prometheus/)
+
+Prometheus is a monitoring system that can collect data from specific targets at specific intervals. This is exactly how we are going to routinely collect the network data that Telegraf is going to provide. We can then use Prometheus as a source of data within our Grafana dashboard!
 
 ### Installing Prometheus
 
-To do.
+At the time of writing, the long-term supported version of Prometheus is `2.37.6`. That is the version of Prometheus that I will be installing. All of the `v2.37.6` downloads can be found at: [https://github.com/prometheus/prometheus/releases/tag/v2.37.6](https://github.com/prometheus/prometheus/releases/tag/v2.37.6).
 
-### Configuring Prometheus
+If you are looking for a different release, all releases can be found at [https://github.com/prometheus/prometheus/releases](https://github.com/prometheus/prometheus/releases) or at [https://prometheus.io/download/](https://prometheus.io/download/).
 
-To do.
+Since I installed the 64-bit ARM version of Raspberry Pi OS, I will be installing the `linux-arm64` version of Prometheus. You will need to install the correct version of Prometheus based on the version and type of OS on your own Raspberry Pi.
+
+Installing Prometheus can be done with a few simple commands via the command line:
+- Open a new terminal window on your Raspberry Pi.
+- Input `cd ~` and press `Enter`.
+  - **Note:** This command will move you to your home directory. This is where we will install Prometheus.
+- Input `wget https://github.com/prometheus/prometheus/releases/download/v2.37.6/prometheus-2.37.6.linux-arm64.tar.gz` and press `Enter`.
+  - **Note:** This could take a minute or two to download - depending on your internet speeds.
+- Input `tar xfz prometheus-2.37.6.linux-arm64.tar.gz` and press `Enter`.
+- Input `mv prometheus-2.37.6.linux-arm64.tar.gz/ prometheus/` and press `Enter`.
+- Input `rm prometheus-2.37.6.linux-arm64.tar.gz` and press `Enter`.
+
+After running these commands, you should see a `prometheus` folder within your home directory. You can double check this by running `ls -l`. Within the list of folders and files, you should see a `prometheus` entry.
+
+### Creating a Prometheus Service
+
+We want Prometheus to start up as soon as Raspberry Pi boots up. We can do this easily by creating a service for Prometheus. You can learn more about Linux Services here: [https://manpages.ubuntu.com/manpages/bionic/man5/systemd.service.5.html](https://manpages.ubuntu.com/manpages/bionic/man5/systemd.service.5.html)
+
+Creating a service can be done with the following commands on the command line:
+- Open a new terminal window on your Raspberry Pi.
+- Input `sudo nano /etc/systemd/system/prometheus.service` and press `Enter`.
+  - **Note:** This will open a text editor within your command line.
+- Paste the text below into your command line text editor. 
+  - **Note:** Replace the 4 instances of `<your-user-name>` in the text content below with the username that you set up when configuring your Raspberry Pi on the first start up.
+  - **Note:** The text content below can also be found within the `prometheus.service` file within this repository.
+```
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
+
+[Service]
+User=<your-user-name>
+Restart=on-failure
+
+ExecStart=/home/<your-user-name>/prometheus/prometheus \
+  --config.file=/home/<your-user-name>/prometheus/prometheus.yml \
+  --storage.tsdb.path=/home/<your-user-name>/prometheus/data
+
+[Install]
+WantedBy=multi-user.target
+```
+- After you have pasted this text into your command line text editor and replaced `<your-user-name>` with your actual Pi's username, you are ready to close and save the file. To do this, press `CTRL + X`, then `Y`, then `ENTER`.
+- On the command line, input `sudo systemctl enable prometheus` and press `Enter`.
+- Input `sudo systemctl start prometheus` and press `Enter`.
+- Input `sudo systemctl status prometheus` and press `Enter`.
+  - If things were successful, after running `sudo systemctl status prometheus` you should see output that tells you that the `prometheus` services is `ACTIVE`.
 
 ### Viewing the Web Interface for Prometheus
 
-To do.
+Now that the Prometheus service is running and active on your Raspberry Pi, you should be able to visit its dashboard. 
+
+Within your Pi's web browser, attempt to visit `localhost:9090`. The page should load you into the Prometheus dashboard. 
+
+Congrats! You just set up a Prometheus service to collect data. Now we need to collect data about our network and pass it into Prometheus.
 
 ## Establishing a Telegraf Service to Collect Network Information
 
