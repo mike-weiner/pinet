@@ -36,7 +36,7 @@ Don't worry about changing or enabling any of the advanced installation options,
 
 This process will probably take several minutes to complete.
 
-### Configuring Raspberry Pi OS on First Book
+### Configuring Raspberry Pi OS on First Boot
 
 Once your MicroSD card is flashed with your selected version of Raspberry Pi OS, insert your MicroSD into your Raspberry Pi, connect a monitor, keyboard, mouse, and plug in your Raspberry Pi to boot it up!
 
