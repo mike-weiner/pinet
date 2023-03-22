@@ -20,19 +20,69 @@ Don't feel like you can't use this project in your own home network if your hous
 
 ## Preparing the Raspberry Pi
 
-To do.
+We first need to get our Raspberry Pi up and running. That starts with flashing a MicroSD card with Raspberry Pi OS and booting into our machine.
 
 ### Installing Raspberry Pi OS
 
-To do.
+Raspberry Pi has some excellent documentation about all of the ways that you can get Raspberry Pi OS installed on your Pi. That documentation is found here: [https://www.raspberrypi.com/documentation/computers/getting-started.html#using-raspberry-pi-imager](https://www.raspberrypi.com/documentation/computers/getting-started.html#using-raspberry-pi-imager)
 
-### Configuring Raspberry Pi OS
+I used [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to flash my MicroSD card and install Raspberry Pi OS. Once you download Raspberry Pi Imager:
+- Select the OS version that you want to install.
+  - **Note**: I chose to install the 64-Bit ARM version on my Raspberry Bi 3 B+.
+- Select the MicroSD card that you want to flash.
+- Click `Write`.
 
-To do.
+Don't worry about changing or enabling any of the advanced installation options, if you don't want to. We will configure all of the settings that we need in the next step. 
+
+This process will probably take several minutes to complete.
+
+### Configuring Raspberry Pi OS on First Book
+
+Once your MicroSD card is flashed with your selected version of Raspberry Pi OS, insert your MicroSD into your Raspberry Pi, connect a monitor, keyboard, mouse, and plug in your Raspberry Pi to boot it up!
+
+During the first boot, you will need to do some last configuration of the OS. When prompted:
+- If you are using a wireless keyboard and/or mouse, you will first be prompted to get those connected.
+- Select your *correct* Country, Language, and Timezone.
+- Enter in a Username and Password. This username and password will be used to log into the Pi.
+  - **Note**: Your username can be whatever you like. Make sure that you write down what your username is as we will need it for a later step. My best recommendation is to keep it simple with all lowercase letters, no spaces, no special characters, and no numbers. If you really can't think of something, you could use the default username of `pi`. I would really not recommend this for security reasons though.
+- Adjust the settings for your Desktop (if needed).
+- If you are not using a wired Ethernet connection, you will be prompted to enter your Wi-Fi security credentials.
+- Finally, you will be prompted to check for any Raspberry Pi OS Updates. **Be sure to do this.**
+
+Once your configuration is complete, you will be taken to your Desktop. Congrats! You now have your own Raspberry Pi. 
+
+There are just two settings that we need to enable. 
+
+### Enabling Auto Login
+To enable Auto Login, in the top-left corner of your Desktop menu bar find the Raspberry Pi Logo. Then:
+- Select `Raspberry Pi Configuration` from the dropdown.
+- Inside the window that opens, select the `System` tab.
+- Toggle `Auto login` to `On`.
+
+Enabling this setting is **not** required. The reason for enabling this setting is to prevent having to enter your username and password every time the Pi has to restart or boot up. If you are installing your Raspberry Pi within your own home, it is probably safe to enable this setting. If you are installing your Pi in any public place, I would leave this setting disabled. 
+
+### Enabling SSH-ing
+To enable SSH, in the top-left corner of your Desktop menu bar find the Raspberry Pi Logo. Then:
+- Select `Raspberry Pi Configuration` from the dropdown.
+- Inside the window that opens, select the `Interfaces` tab.
+- Toggle `SSH` to `On`.
+
+Again, enabling this setting is **not** required. The reason for enabling this setting is to be able to remote into your machine if there are ever any issues with it.
 
 ### Updating Raspberry Pi OS
 
-To do.
+The last thing that we need to do is run a quick quick check to ensure that all of the packets provided with Raspberry Pi OS are update to do. 
+
+This is easily done by:
+- Opening a terminal window.
+- Input `sudo apt update` and press `Enter`.
+  - **Note:** You will most likely be prompted for your password that you created during setup.
+- Input `sudo full-upgrade` and press `Enter`.
+  - **Note:** You will most likely be prompted for your password that you created during setup.
+
+This process should take no longer than a few minutes to complete. 
+
+We are now ready to begin to install and setup the infrastructure that is going to support your network monitoring dashboard!
 
 ## Establishing a Prometheus Data Scraper
 
