@@ -222,7 +222,7 @@ timeout = 5.0
 - Input `sudo systemctl status telegraf.service` and press `Enter`.
   - If things were successful, after running `sudo systemctl status telegraf.service` you should see output that tells you that the `telegraf` services is `ACTIVE`.
 
-Telegraf has *many* plugins that can be used to collect data. Those plugins can be found at [https://docs.influxdata.com/telegraf/v1.26/plugins/](https://docs.influxdata.com/telegraf/v1.26/plugins/). Within this configuration file is where you could decide to collect more data. **Anytime that you make changes to `/etc/telegraf/telegraf.conf`, you will want to restart your Telegraf service so the changes get picked up. To do this, you can run `sudo systemctl restart telegraf.service`.**
+**Anytime that you make changes to `/etc/telegraf/telegraf.conf`, you will want to restart your Telegraf service so the changes get picked up. To do this, you can run `sudo systemctl restart telegraf.service`.**
 
 Congrats! You just set up a Telegraf service to collect network ping data. Now we need to tell Prometheus that there is a new set of data available for collection on port `9091`.
 
@@ -288,3 +288,13 @@ To do.
 ### Creating our First Panel in Grafana
 
 To do.
+
+This is not a comprehensive Grafana tutorial. Grafana is extremely powerful! If you are looking for more tutorials, Grafana has some great ones here: [https://grafana.com/tutorials/](https://grafana.com/tutorials/). A quick Google search should also get you some great answers!
+
+## Expanding this Project
+There are numerous ways that this project could be expanded or customized.
+- A Cloudflare Tunnel ([https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)) could be used to make your local Grafana dashboard available to the public internet in a secure manner. This would allow you to check on your network's health from anywhere in the world (as long as your Pi had a network connection).
+  - Cloudflare offers this service for **free**. You could even buy a cheap custom domain to tunnel into your Pi!
+- Telegraf has *many* plugins that can be used to collect data. Those plugins can be found at [https://docs.influxdata.com/telegraf/v1.26/plugins/](https://docs.influxdata.com/telegraf/v1.26/plugins/). You could find a new plugin to use to collect another source of data.
+- You could modify the existing `telegraf.conf` file to ping more websites or change how frequently pings are done.
+- Make some complex visualizations in Grafana. This tutorial only scratched the surface of what is possible with Grafana. Go crazy and make some cool, dynamic panels!
