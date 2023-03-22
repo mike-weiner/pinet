@@ -150,7 +150,7 @@ WantedBy=multi-user.target
 
 Now that the Prometheus service is running and active on your Raspberry Pi, you should be able to visit its dashboard. 
 
-Within your Pi's web browser, attempt to visit `localhost:9090`. The page should load you into the Prometheus dashboard. 
+Within your Pi's web browser, attempt to visit `http://localhost:9090`. The page should load you into the Prometheus dashboard. 
 
 Congrats! You just set up a Prometheus service to collect data. Now we need to collect data about our network and pass it into Prometheus.
 
