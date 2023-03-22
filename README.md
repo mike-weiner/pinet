@@ -84,7 +84,7 @@ This process should take no longer than a few minutes to complete.
 
 We are now ready to begin to install and setup the infrastructure that is going to support your network monitoring dashboard!
 
-## Creating a Prometheus Service
+## Setting Up Prometheus
 
 **Prometheus Website:** [https://prometheus.io](https://prometheus.io)
 
@@ -146,6 +146,8 @@ WantedBy=multi-user.target
 - Input `sudo systemctl status prometheus` and press `Enter`.
   - If things were successful, after running `sudo systemctl status prometheus` you should see output that tells you that the `prometheus` services is `ACTIVE`.
 
+**Anytime that you make changes to `~/prometheus/prometheus.yml`, you will want to restart your Prometheus service so the changes get picked up. To do this, you can run `sudo systemctl restart prometheus`.**
+
 ### Viewing the Web Interface for Prometheus
 
 Now that the Prometheus service is running and active on your Raspberry Pi, you should be able to visit its dashboard. 
@@ -154,38 +156,135 @@ Within your Pi's web browser, attempt to visit `http://localhost:9090`. The page
 
 Congrats! You just set up a Prometheus service to collect data. Now we need to collect data about our network and pass it into Prometheus.
 
-## Establishing a Telegraf Service to Collect Network Information
+## Setting Up Telegraf
 
-To do.
+**Telegraf Website:** [https://www.influxdata.com/time-series-platform/telegraf/](https://www.influxdata.com/time-series-platform/telegraf/)
+
+**Github Repository:** [https://github.com/influxdata/telegraf](https://github.com/influxdata/telegraf)
+
+Telegraf is an InfluxDB plugin that can be used to collect any number of system metrics. We are going to use one of its many plugins to collect ping times on our network. We can use another output plugin to easily pass our collected data out to Prometheus.
 
 ### Installing Telegraf
 
-To do.
+At the time of writing, the current version of Telegraf is `1.26.0`. That is the version of Prometheus that I will be installing. All of the `v1.26.0` downloads can be found at: [https://github.com/influxdata/telegraf/releases/tag/v1.26.0](https://github.com/influxdata/telegraf/releases/tag/v1.26.0).
 
-### Configuring Telegraf
+If you are looking for a different release, all releases can be found at [https://github.com/influxdata/telegraf/releases](https://github.com/influxdata/telegraf/releases) or at [https://portal.influxdata.com/downloads/](https://portal.influxdata.com/downloads/).
 
-To do.
+Since I installed the 64-bit ARM version of Raspberry Pi OS, I am going to install the Ubuntu & Debian versions of Telegraf. This should work with most (if not all) Raspberry Pis. You can choose to install different version.
+
+Telegraf has some great installation instructions ([https://portal.influxdata.com/downloads/](https://portal.influxdata.com/downloads/)) and that is what I will be following.
+
+Installing Telegraf can be done with a few simple commands via the command line:
+- Open a new terminal window on your Raspberry Pi.
+- Input `cd ~` and press `Enter`.
+- Copy the commands below, paste them into your command line, and press `Enter`.
+```
+# influxdata-archive_compat.key GPG Fingerprint: 9D539D90D3328DC7D6C8D3B9D8FF8E1F7DF8B07E
+wget -q https://repos.influxdata.com/influxdata-archive_compat.key
+echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c influxdata-archive_compat.key' | sha256sum -c && cat influxdata-archive_compat.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null
+echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' | sudo tee /etc/apt/sources.list.d/influxdata.list
+sudo apt-get update && sudo apt-get install telegraf
+```
+
+This process could take a few minutes to complete - depending on your internet connection. 
+
+Congrats! You've just installed Telegraf. Now we need to set a up a service for it just like we did for Prometheus.
+
+### Configuring a Telegraf Service
+
+We want Telegraf to start up as soon as Raspberry Pi boots up. We can do this easily by creating a service for Telegraf. You can learn more about Linux Services here: [https://manpages.ubuntu.com/manpages/bionic/man5/systemd.service.5.html](https://manpages.ubuntu.com/manpages/bionic/man5/systemd.service.5.html)
+
+Creating a service can be done with the following commands on the command line:
+- Open a new terminal window on your Raspberry Pi.
+- Input `sudo nano /etc/telegraf/telegraf.conf` and press `Enter`.
+  - **Note:** This will open a text editor within your command line.
+- Paste the text below into your command line text editor. 
+  - **Note:** The text content below can also be found within the `telegraf.conf` file within this repository.
+  - This is where you might want to make changes. The configuration file says that we are going to ping `1.1.1.1` (Cloudflare's public DNS) 1 time every 15 seconds and our ping command will timeout after 5 seconds. We will then make the data available in a Prometheus format on port `9091`.
+```
+# Input plugins
+
+# Ping plugin
+[[inputs.ping]]
+urls = ["1.1.1.1"]
+count = 1
+ping_interval = 15.0
+timeout = 5.0
+
+# Output format plugins
+[[outputs.prometheus_client]]
+  listen = ":9091"
+  metric_version = 2
+```
+- After you have pasted this text into your command line text editor, you are ready to close and save the file. To do this, press `CTRL + X`, then `Y`, then `ENTER`.
+- On the command line, input `sudo systemctl enable telegraf.service` and press `Enter`.
+- Input `sudo systemctl start telegraf.service` and press `Enter`.
+- Input `sudo systemctl status telegraf.service` and press `Enter`.
+  - If things were successful, after running `sudo systemctl status telegraf.service` you should see output that tells you that the `telegraf` services is `ACTIVE`.
+
+Telegraf has *many* plugins that can be used to collect data. Those plugins can be found at [https://docs.influxdata.com/telegraf/v1.26/plugins/](https://docs.influxdata.com/telegraf/v1.26/plugins/). Within this configuration file is where you could decide to collect more data. **Anytime that you make changes to `/etc/telegraf/telegraf.conf`, you will want to restart your Telegraf service so the changes get picked up. To do this, you can run `sudo systemctl restart telegraf.service`.**
+
+Congrats! You just set up a Telegraf service to collect network ping data. Now we need to tell Prometheus that there is a new set of data available for collection on port `9091`.
 
 ### Pointing Prometheus to Telegraf's Data
 
-To do.
+Now that we have Telegraf service running to collect our network ping times, we need to inform Prometheus about this new source of data. To do this, we need to update Prometheus's configuration file and then restart the Prometheus service to have the change be picked up.
 
-## Dashboarding our Network's Health
+First we need to update our `prometheus.yml` file. This can be done via the command line:
+- Open a new command line window.
+- Input `sudo nano ~/prometheus/prometheus.yml` and press `Enter`.
+- To do
 
-To do.
+Now that our Prometheus configuration has been updated, we need to restart our Prometheus service for the changes to be picked up. To do this, run `sudo systemctl restart prometheus` within the command line.
+
+## Setting Up Grafana
+
+**Grafana Website:** [https://grafana.com](https://grafana.com)
+
+**Github Repository:** [https://github.com/grafana/grafana](https://github.com/grafana/grafana)
+
+Grafana is an open-source tool that can be used to visual data from a number of different sources. We are going to use it to visualize the data that our Prometheus service is collecting from Telegraf.
 
 ### Installing Grafana
 
-To do.
+Grafana has some great installation instructions ([https://grafana.com/tutorials/install-grafana-on-raspberry-pi/](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/)) and that is what I will be following.
+
+Installing Grafana can be done with a few simple commands via the command line:
+- Open a new terminal window on your Raspberry Pi.
+- Input `wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -` and press `Enter`.
+- Input `echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list` and press `Enter`.
+- Input `sudo apt-get update` and press `Enter`.
+- Input `sudo apt-get install -y grafana` and press `Enter`.
+
+The process could take a few minutes - depending on your internet connection. Grafana is now installed, but we need to create a service for it just like we did with Prometheus and Telegraf.
+
+### Configuring a Grafana Service
+
+We want Grafana to start up as soon as Raspberry Pi boots up. We can do this easily by creating a service for Grafana. You can learn more about Linux Services here: [https://manpages.ubuntu.com/manpages/bionic/man5/systemd.service.5.html](https://manpages.ubuntu.com/manpages/bionic/man5/systemd.service.5.html)
+
+Creating a service can be done with the following commands on the command line:
+- Open a new terminal window on your Raspberry Pi.
+- Input `sudo /bin/systemctl enable grafana-server` and press `Enter`.
+- Input `sudo /bin/systemctl start grafana-server` and press `Enter`.
+
+### Viewing the Web Interface for Grafana
+
+If everything has gone right, we should not be able to log into Grafana and start dashboarding data! On your Raspberry Pi, open a web browser and attempt to visit `http://localhost:3000`.
+
+You should see the Grafana login page. You should be able to login with the following default credentials of:
+```
+username: admin
+password: admin
+```
+
+**Please, change the password when you are prompted.**
+
+If you were able to log in - we are ready to start viewing our network health data!
 
 ### Adding Prometheus as a Data Source to Grafana
 
 To do.
 
 ### Creating our First Panel in Grafana
-
-To do.
-
-## Tunneling our Local Grafana Dashboard to a Public Domain Name
 
 To do.
