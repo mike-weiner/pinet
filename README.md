@@ -233,9 +233,21 @@ Now that we have Telegraf service running to collect our network ping times, we 
 First we need to update our `prometheus.yml` file. This can be done via the command line:
 - Open a new command line window.
 - Input `sudo nano ~/prometheus/prometheus.yml` and press `Enter`.
-- To do
+- Underneath the `scrape_configs` section, add the following:
+  - **Note:** An example Prometheus configuration file can be found within the `prometheus.yml` file within this repository.
+```
+- job_name: "telegraf-agent"
+  static_configs:
+    - targets: ["localhost:9091"]
+```
+  - This tells Prometheus that it has another source of data it should scrape and that the data to scrape is found at `localhost:9091`. This port number should match the port that is listed under `outputs.prometheus_client` within your `telegraf.conf` file.
+- After you have added this information, you are ready to close and save the file. To do this, press `CTRL + X`, then `Y`, then `ENTER`.
 
-Now that our Prometheus configuration has been updated, we need to restart our Prometheus service for the changes to be picked up. To do this, run `sudo systemctl restart prometheus` within the command line.
+Now that our Prometheus configuration has been updated, we need to restart our Prometheus service for the changes to be picked up. To do this, run `sudo systemctl restart prometheus` within the command line. To do this:
+- On the command line, input `sudo systemctl restart prometheus` and press `Enter`.
+- On your Raspberry Pi, open a web browser and visit `localhost:9090/targets`.
+  - If things are set up correctly, you should see two targets listed: `prometheus` and `telegraf-agent`. 
+  - **Note:** The names of these targets match the `job_name` property within the `scrape_configs` section of the `prometheus.yml` configuration file.
 
 ## Setting Up Grafana
 
@@ -283,11 +295,30 @@ If you were able to log in - we are ready to start viewing our network health da
 
 ### Adding Prometheus as a Data Source to Grafana
 
-To do.
+Now that we have Grafana to dashboard our data, we need to add our Prometheus service to Grafana as a potential data source. To do this:
+- Open a web browser on your Raspberry Pi and visit `localhost:3000/`.
+- Log into your Grafana instance.
+- From the left-hand sidebar menu, hover over the `⚙️` (Settings) icon and select `Data sources` from the flyout menu.
+- Once the page loads, click the blue `Add new data source` button.
+- Select the `Prometheus` option from the page. 
+  - **Note:** You may need to search for it on the page.
+- Enter a name for your datasource in the `Name` field at the top of the page.
+  - If you aren't sure about a name, I would go with something simple like `Prometheus`.
+- Within the `HTTP` section enter `localhost:9090` in the `URL` field. 
+  - **Note:** If you used a different port for your Prometheus server, use that port instead.
+- Scroll down to the bottom of the page and click the blue `Save & test` button.
 
-### Creating our First Panel in Grafana
+If things are working correctly, you should see a green `Data source is working` expandable pop up below the blue `Save & test` button. 
 
-To do.
+If you need more assistance or have questions, Grafana has some excellent documentation about adding a Prometheus datasource. That documentation can be found at: [https://grafana.com/docs/grafana/latest/datasources/prometheus/](https://grafana.com/docs/grafana/latest/datasources/prometheus/)
+
+### Creating our Dashboard & Panel in Grafana
+
+Now that Grafana has access to the data that we are collecting about our network's health, we can finally create our network monitoring dashboard! 
+
+![Grafana Dashboard](/grafana-dashboard.png)
+
+You can either make your own custom dashboard from scratch, or you can import my dashboard via the `grafana-dashboard.json` file that is included within this repository. Grafana has a great explanation of how to import a dashboard at: [https://grafana.com/docs/grafana/latest/dashboards/manage-dashboards/#import-a-dashboard](https://grafana.com/docs/grafana/latest/dashboards/manage-dashboards/#import-a-dashboard)
 
 This is not a comprehensive Grafana tutorial. Grafana is extremely powerful! If you are looking for more tutorials, Grafana has some great ones here: [https://grafana.com/tutorials/](https://grafana.com/tutorials/). A quick Google search should also get you some great answers!
 
@@ -298,3 +329,6 @@ There are numerous ways that this project could be expanded or customized.
 - Telegraf has *many* plugins that can be used to collect data. Those plugins can be found at [https://docs.influxdata.com/telegraf/v1.26/plugins/](https://docs.influxdata.com/telegraf/v1.26/plugins/). You could find a new plugin to use to collect another source of data.
 - You could modify the existing `telegraf.conf` file to ping more websites or change how frequently pings are done.
 - Make some complex visualizations in Grafana. This tutorial only scratched the surface of what is possible with Grafana. Go crazy and make some cool, dynamic panels!
+
+## Acknowledgements
+- This article ([https://mrkaran.dev/posts/isp-monitoring/](https://mrkaran.dev/posts/isp-monitoring/)) served as the primary inspiration for this project. Great work! 
