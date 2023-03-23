@@ -171,7 +171,7 @@ At the time of writing, the current version of Telegraf is `1.26.0`. That is the
 
 If you are looking for a different release, all releases can be found at [https://github.com/influxdata/telegraf/releases](https://github.com/influxdata/telegraf/releases) or at [https://portal.influxdata.com/downloads/](https://portal.influxdata.com/downloads/).
 
-Since I installed the 64-bit ARM version of Raspberry Pi OS, I am going to install the Ubuntu & Debian versions of Telegraf. This should work with most (if not all) Raspberry Pis. You can choose to install different version.
+Since I installed the 64-bit ARM version of Raspberry Pi OS, I am going to install the Ubuntu & Debian versions of Telegraf. This should work with most (if not all) Raspberry Pis. You can choose to install a different version.
 
 Telegraf has some great installation instructions ([https://portal.influxdata.com/downloads/](https://portal.influxdata.com/downloads/)) and that is what I will be following.
 
@@ -229,7 +229,7 @@ Congrats! You just set up a Telegraf service to collect network ping data. Now w
 
 ### Pointing Prometheus to Telegraf's Data
 
-Now that we have Telegraf service running to collect our network ping times, we need to inform Prometheus about this new source of data. To do this, we need to update Prometheus's configuration file and then restart the Prometheus service to have the change be picked up.
+Now that we have Telegraf service running to collect our network ping times, we need to inform Prometheus about this new source of data. To do this, we need to update Prometheus's configuration file and then restart the Prometheus service to have the change picked up.
 
 First we need to update our `prometheus.yml` file. This can be done via the command line:
 - Open a new command line window.
