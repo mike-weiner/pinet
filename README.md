@@ -72,16 +72,14 @@ To enable SSH, in the top-left corner of your Desktop menu bar find the Raspberr
 
 Again, enabling this setting is **not** required. The reason for enabling this setting is to be able to remote into your machine if there are ever any issues with it.
 
-### Updating Raspberry Pi OS
+### Updating Packages
 
-The last thing that we need to do is run a quick quick check to ensure that all of the packets provided with Raspberry Pi OS are update to do. 
+The last thing that we need to do is run a quick check to ensure that all of the packages provided with Raspberry Pi OS are update to do. 
 
 This is easily done by:
 - Opening a terminal window.
 - Input `sudo apt update` and press `Enter`.
-  - **Note:** You will most likely be prompted for your password that you created during setup.
 - Input `sudo full-upgrade` and press `Enter`.
-  - **Note:** You will most likely be prompted for your password that you created during setup.
 
 This process should take no longer than a few minutes to complete. 
 
