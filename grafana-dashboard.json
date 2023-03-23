@@ -7,10 +7,22 @@
       "type": "datasource",
       "pluginId": "prometheus",
       "pluginName": "Prometheus"
+    },
+    {
+      "name": "DS_EXPRESSION",
+      "label": "Expression",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "__expr__"
     }
   ],
   "__elements": {},
   "__requires": [
+    {
+      "type": "datasource",
+      "id": "__expr__",
+      "version": "1.0.0"
+    },
     {
       "type": "grafana",
       "id": "grafana",
@@ -70,7 +82,6 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Ping time (ms) from our network to 1.1.1.1",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -86,7 +97,7 @@
               },
               {
                 "color": "red",
-                "value": 40
+                "value": 50
               }
             ]
           },
@@ -100,74 +111,8 @@
         "x": 0,
         "y": 0
       },
-      "id": 2,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.4.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "builder",
-          "expr": "ping_average_response_ms",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "1.1.1.1",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "Package loss being experienced on the network.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
       "id": 4,
+      "maxPerRow": 6,
       "options": {
         "colorMode": "background",
         "graphMode": "area",
@@ -183,6 +128,8 @@
         "textMode": "auto"
       },
       "pluginVersion": "9.4.3",
+      "repeat": "Endpoints",
+      "repeatDirection": "h",
       "targets": [
         {
           "datasource": {
@@ -190,13 +137,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "ping_percent_packet_loss",
+          "expr": "ping_average_response_ms{url=~\"$Endpoints\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "1.1.1.1",
+      "title": "Current Ping Time to $Endpoints",
       "type": "stat"
     },
     {
@@ -204,7 +151,6 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Ping time (ms) from our network to various websites.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -241,6 +187,7 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -250,7 +197,7 @@
               },
               {
                 "color": "red",
-                "value": 40
+                "value": 50
               }
             ]
           },
@@ -259,24 +206,30 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
-        "w": 24,
+        "h": 8,
+        "w": 12,
         "x": 0,
         "y": 8
       },
-      "id": 6,
+      "id": 7,
+      "maxPerRow": 6,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
+        "timezone": [
+          "America/Chicago"
+        ],
         "tooltip": {
           "mode": "single",
           "sort": "none"
         }
       },
+      "repeat": "Endpoints",
+      "repeatDirection": "h",
       "targets": [
         {
           "datasource": {
@@ -284,13 +237,13 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "ping_average_response_ms",
-          "legendFormat": "Average Ping to 1.1.1.1 (ms)",
+          "expr": "ping_average_response_ms{url=~\"$Endpoints\"}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Ping Times",
+      "title": "Historical Ping Times for $Endpoints",
       "type": "timeseries"
     },
     {
@@ -298,7 +251,6 @@
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
       },
-      "description": "The percentage packet loss being experienced on the network.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -307,7 +259,7 @@
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Packet Loss (%)",
+            "axisLabel": "% Packet Loss",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
@@ -339,49 +291,41 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
                 "value": 0
               }
             ]
-          }
+          },
+          "unit": "percentunit"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "{__name__=\"ping_percent_packet_loss\", host=\"raspberrypi\", instance=\"localhost:9091\", job=\"telegraf-agent\", url=\"1.1.1.1\"}"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Average Packet Loss to 1.1.1.1 (%)"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
-        "y": 18
+        "y": 16
       },
-      "id": 8,
+      "id": 11,
+      "maxPerRow": 6,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
           "sort": "none"
         }
       },
+      "repeat": "Endpoints",
+      "repeatDirection": "h",
       "targets": [
         {
           "datasource": {
@@ -389,13 +333,24 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "builder",
-          "expr": "ping_percent_packet_loss",
+          "expr": "ping_packets_received{url=~\"$Endpoints\"}",
+          "hide": true,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "${DS_EXPRESSION}"
+          },
+          "expression": "1 - $A",
+          "hide": false,
+          "refId": "B",
+          "type": "math"
         }
       ],
-      "title": "Packet Loss (%)",
+      "title": "% Packet Loss for $Endpoints",
       "type": "timeseries"
     }
   ],
@@ -405,7 +360,33 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": "",
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "definition": "label_values(ping_average_response_ms,url)",
+        "description": "The external endpoints being contacted.",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Endpoint",
+        "multi": true,
+        "name": "Endpoints",
+        "options": [],
+        "query": {
+          "query": "label_values(ping_average_response_ms,url)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-6h",
@@ -415,6 +396,6 @@
   "timezone": "",
   "title": "Internet Monitoring",
   "uid": "jEfhrfb4z",
-  "version": 4,
+  "version": 15,
   "weekStart": ""
 }
