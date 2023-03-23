@@ -18,6 +18,9 @@ Now, I do realize that if the Raspberry Pi does not have an internet connection 
 
 Don't feel like you can't use this project in your own home network if your house as a buried copper or fiber line. This could be a great project to set up in you want more data about your network and prove to your ISP that you are having issues.
 
+## Warning
+Since the Raspberry Pi will be sending pings 24/7, leaving it running will consume some amount of network data. Exactly how much data will depend on how many different external services you ping, how frequently you ping them, and how many packets you send with each ping session. If you ISP imposes data limits, be careful to ensure that your project won't tear through your data limit!
+
 ## Preparing the Raspberry Pi
 
 We first need to get our Raspberry Pi up and running. That starts with flashing a MicroSD card with Raspberry Pi OS and booting into our machine.
