@@ -6,20 +6,20 @@ This repository includes instructions and configuration files for setting up a R
 
 I recently moved to a more rural location in Minnesota that does not have buried coper or fiber internet infrastructure. Instead, our internet connection comes from a fixed wireless signal. Verizon has a good explanation of the technology [here](https://www.verizon.com/about/blog/fixed-wireless-access), if you are not familiar. 
 
-The unique part about my location is that the house we live in does not have a direct line of sight with our ISP's closest basestation, but another building on the property does. So, our ISP placed their antenna (a Ubiquiti LiteBeam 60) that captures their external internet connection on that building. That signal is then passed into a switch where a MikroTik Cube Lite 60 repeats the signal back to our home. Another MikroTik Cube Lite 60 that is located on our house captures the repeated signal and passes it into our home network's router.
+The unique part about my location is that the house we live in does not have a direct line of sight with our ISP's closest base station, but another building on the property does. So, our ISP placed their antenna (a Ubiquiti LiteBeam 60) that captures their external internet connection on that building. That signal is then passed into a switch where a MikroTik Cube Lite 60 repeats the signal back to our home. Another MikroTik Cube Lite 60 that is located on our house captures the repeated signal and passes it into our home network's router.
 
-Fore the most part, our experience has been pretty good. Speeds are about 100Mbps down and 50Mbps up with ping times averaging right around 10ms. Keep in mind, we came from a city where we had buried copper that got 500Mbps down and 20Mbps up. We have run into some periods of high latency in our home network (Network 2 in the diagram above) and some intermittent connectivity drops that been reported by our Ubiquiti Dream Machine Pro. 
+For the most part, our experience has been pretty good. Speeds are about 60 Mbps down and 35 Mbps up with ping times averaging right around 25-30 ms. Keep in mind, we came from a city where we had buried copper that got 500 Mbps down and 20 Mbps up. We have run into some periods of high latency in our home network (Network 2 in the diagram above) and some intermittent connectivity drops that been reported by our Ubiquiti Dream Machine Pro. 
 
-We wanted to begin collecting data about the health of our network to try and give our ISP data confirming our issues. However, our network set up has more points of failure than most home networks. In areas where buried fiber or copper lines are run into a house, the usual culprits of a bad internet connection are the router or modem and both are found right inside your home. This makes it fairly easy for you and/or your ISP to diagnose network issues. With our setup, the antenna that captures the external internet connection could be down. One or both of the repeaters could  be down. There could be some combination of both, or it could be our home router. These devices are scattered across two buildings.
+We wanted to begin collecting data about the health of our network to try and give our ISP raw data that supported the issues we were experiencing. However, our network set up has more points of failure than most home networks. In areas where buried fiber or copper lines are run into a house, the usual culprits of a bad internet connection are (1) the router or (2) modem and both are found right inside your home. This makes it fairly easy for you and/or your ISP to diagnose network issues. With our setup, the antenna that captures the external internet connection could be down. One or both of the repeaters could  be down. There could be some combination of both, or it could be our home router. These devices are scattered across two buildings.
 
-Knowing whether or not there was an internet connection in the building 500ft away from our house (Network 1 in the diagram above) was going to give us the best information. We could immediately narrow a loss of connectivity in our house to an issue with the antenna capturing the broader internet or if there was an issue with one (or both) of our repeaters. The challenge is that these are two separate networks. We wanted a local device in the second building that we could access remotely to view historical and current ping times. This is where the Raspberry Pi comes in. We can use a Raspberry Pi that runs a local Grafana dashboard to display network statistics from data collected by locally running Prometheus and Telegraf services. Using Cloudflare Tunnels, we could securely make this dashboard available publicly to us. **All of this can be down without having to pay for any services**.
+Knowing whether or not there was an internet connection in the building 500 ft away from our house (Network 1 in the diagram above) was going to give us the best information. We could immediately narrow a loss of connectivity in our house to an issue with the antenna capturing the broader internet or if there was an issue with one (or both) of our repeaters. The challenge is that these are two separate networks. We wanted a local device in the second building that we could access remotely to view historical and current ping times. This is where the Raspberry Pi comes in. We can use a Raspberry Pi that runs a local Grafana dashboard to display network statistics from data collected by locally running Prometheus and Telegraf services. Using Cloudflare Tunnels, we could securely make this dashboard available publicly to us. **All of this can be down without having to pay for any services**.
 
 Now, I do realize that if the Raspberry Pi does not have an internet connection that we won't be able to reach our Raspberry Pi's Grafana dashboard via the Cloudflare Tunnel. That's fine. That will immediately tell us that we have an issue with the external antenna capturing our boarder internet signal. If we can reach the Raspberry Pi and it's reporting normal ping times, but we don't have an internet connection in our house - then we either have an issue with our repeaters or our local router. This can easily be tracked down since our Ubiquiti Dream Machine Pro will inform us whether it has an internet signal or not. The Raspberry Pi also gives us the flexibility to connect a red LED light that would get turned on if the Pi doesn't have an internet connection.
 
 Don't feel like you can't use this project in your own home network if your house as a buried copper or fiber line. This could be a great project to set up in you want more data about your network and prove to your ISP that you are having issues.
 
-## Warning
-Since the Raspberry Pi will be sending pings 24/7, leaving it running will consume some amount of network data. Exactly how much data will depend on how many different external services you ping, how frequently you ping them, and how many packets you send with each ping session. If you ISP imposes data limits, be careful to ensure that your project won't tear through your data limit!
+> [!WARNING]
+> Since the Raspberry Pi will be sending pings 24/7, leaving it running will consume some amount of network data. Exactly how much data will depend on how many different external services you ping, how frequently you ping them, and how many packets you send with each ping session. If you ISP imposes data limits, be careful to ensure that your project won't tear through your data limit!
 
 ## Preparing the Raspberry Pi
 
@@ -62,7 +62,7 @@ To enable Auto Login, in the top-left corner of your Desktop menu bar find the R
 - Inside the window that opens, select the `System` tab.
 - Toggle `Auto login` to `On`.
 
-Enabling this setting is **not** required. The reason for enabling this setting is to prevent having to enter your username and password every time the Pi has to restart or boot up. If you are installing your Raspberry Pi within your own home, it is probably safe to enable this setting. If you are installing your Pi in any public place, I would leave this setting disabled. 
+Enabling this setting is **not** required. The reason for enabling this setting is to prevent having to enter your username and password every time the Pi has to restart or boot up. If you are installing your Raspberry Pi within your own home, it is probably safe to enable this setting. If you are installing your Pi in any public place, I would leave this setting disabled.
 
 ### Enabling SSH-ing
 To enable SSH, in the top-left corner of your Desktop menu bar find the Raspberry Pi Logo. Then:
@@ -95,9 +95,9 @@ Prometheus is a monitoring system that can collect data from specific targets at
 
 ### Installing Prometheus
 
-At the time of writing, the long-term supported version of Prometheus is `2.37.6`. That is the version of Prometheus that I will be installing. All of the `v2.37.6` downloads can be found at: [https://github.com/prometheus/prometheus/releases/tag/v2.37.6](https://github.com/prometheus/prometheus/releases/tag/v2.37.6).
+At the time of writing, the newest version of Prometheus is `3.0.1`. That is the version of Prometheus that I will be installing. All of the `v3.0.1` downloads can be found at: [https://github.com/prometheus/prometheus/releases/tag/v3.0.1](https://github.com/prometheus/prometheus/releases/tag/v3.0.1).
 
-If you are looking for a different release, all releases can be found at [https://github.com/prometheus/prometheus/releases](https://github.com/prometheus/prometheus/releases) or at [https://prometheus.io/download/](https://prometheus.io/download/).
+If you are looking for a different release, all releases can be found at [https://github.com/prometheus/prometheus/releases](https://github.com/prometheus/prometheus/releases) or at [https://prometheus.io/download/](https://prometheus.io/download/). If you are looking to use a long-term support version of Prometheus, you can find that list at [https://prometheus.io/docs/introduction/release-cycle/](https://prometheus.io/docs/introduction/release-cycle/). Any relatively new version of Prometheus should work.
 
 Since I installed the 64-bit ARM version of Raspberry Pi OS, I will be installing the `linux-arm64` version of Prometheus. You will need to install the correct version of Prometheus based on the version and type of OS on your own Raspberry Pi.
 
@@ -105,11 +105,11 @@ Installing Prometheus can be done with a few simple commands via the command lin
 - Open a new terminal window on your Raspberry Pi.
 - Input `cd ~` and press `Enter`.
   - **Note:** This command will move you to your home directory. This is where we will install Prometheus.
-- Input `wget https://github.com/prometheus/prometheus/releases/download/v2.37.6/prometheus-2.37.6.linux-arm64.tar.gz` and press `Enter`.
+- Input `wget https://github.com/prometheus/prometheus/releases/download/v3.0.1/prometheus-3.0.1.linux-arm64.tar.gz` and press `Enter`.
   - **Note:** This could take a minute or two to download - depending on your internet speeds.
-- Input `tar xfz prometheus-2.37.6.linux-arm64.tar.gz` and press `Enter`.
-- Input `mv prometheus-2.37.6.linux-arm64.tar.gz/ prometheus/` and press `Enter`.
-- Input `rm prometheus-2.37.6.linux-arm64.tar.gz` and press `Enter`.
+- Input `tar xfz prometheus-3.0.1.linux-arm64.tar.gz` and press `Enter`.
+- Input `mv prometheus-3.0.1.linux-arm64.tar.gz/ prometheus/` and press `Enter`.
+- Input `rm prometheus-3.0.1.linux-arm64.tar.gz` and press `Enter`.
 
 After running these commands, you should see a `prometheus` folder within your home directory. You can double check this by running `ls -l`. Within the list of folders and files, you should see a `prometheus` entry.
 
@@ -147,7 +147,7 @@ WantedBy=multi-user.target
 - Input `sudo systemctl status prometheus` and press `Enter`.
   - If things were successful, after running `sudo systemctl status prometheus` you should see output that tells you that the `prometheus` services is `ACTIVE`.
 
-**Anytime that you make changes to `~/prometheus/prometheus.yml`, you will want to restart your Prometheus service so the changes get picked up. To do this, you can run `sudo systemctl restart prometheus`.**
+**Anytime that you make changes to `~/prometheus/prometheus.yml` config file, you will want to restart your Prometheus service so the changes get picked up. To do this, you can run `sudo systemctl restart prometheus`.**
 
 ### Viewing the Web Interface for Prometheus
 
@@ -167,7 +167,7 @@ Telegraf is an InfluxDB plugin that can be used to collect any number of system 
 
 ### Installing Telegraf
 
-At the time of writing, the current version of Telegraf is `1.26.0`. That is the version of Prometheus that I will be installing. All of the `v1.26.0` downloads can be found at: [https://github.com/influxdata/telegraf/releases/tag/v1.26.0](https://github.com/influxdata/telegraf/releases/tag/v1.26.0).
+At the time of writing, the current version of Telegraf is `1.33.0`. That is the version of Telegraf that I will be installing. All of the `v1.33.0` downloads can be found at: [https://github.com/influxdata/telegraf/releases/tag/v1.33.0](https://github.com/influxdata/telegraf/releases/tag/v1.33.0).
 
 If you are looking for a different release, all releases can be found at [https://github.com/influxdata/telegraf/releases](https://github.com/influxdata/telegraf/releases) or at [https://portal.influxdata.com/downloads/](https://portal.influxdata.com/downloads/).
 
@@ -180,11 +180,10 @@ Installing Telegraf can be done with a few simple commands via the command line:
 - Input `cd ~` and press `Enter`.
 - Copy the commands below, paste them into your command line, and press `Enter`.
 ```
-# influxdata-archive_compat.key GPG Fingerprint: 9D539D90D3328DC7D6C8D3B9D8FF8E1F7DF8B07E
-wget -q https://repos.influxdata.com/influxdata-archive_compat.key
-echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c influxdata-archive_compat.key' | sha256sum -c && cat influxdata-archive_compat.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null
-echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' | sudo tee /etc/apt/sources.list.d/influxdata.list
-sudo apt-get update && sudo apt-get install telegraf
+curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+echo "deb https://repos.influxdata.com/debian bullseye stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+sudo apt-get update
+sudo apt-get install -y telegraf
 ```
 
 This process could take a few minutes to complete - depending on your internet connection. 
@@ -207,10 +206,45 @@ Creating a service can be done with the following commands on the command line:
 
 # Ping plugin
 [[inputs.ping]]
-urls = ["1.1.1.1"]
+urls = ["1.1.1.1", "8.8.8.8"]
 count = 1
 ping_interval = 15.0
 timeout = 5.0
+
+# Speedtest
+# Monitors internet speed using speedtest.net service
+[[inputs.internet_speed]]
+interval = "60m"
+
+# Enable to reduce memory usage
+memory_saving_mode = false
+
+# Caches the closest server location
+cache = false
+
+# Number of concurrent connections
+# By default or set to zero, the number of CPU cores is used. Use this to
+# reduce the impact on system performance or to increase the connections on
+# faster connections to ensure the fastest speed.
+connections = 0
+
+# Test mode
+# By default, a single sever is used for testing. This may work for most,
+# however, setting to "multi" will reach out to multiple servers in an
+# attempt to get closer to ideal internet speeds.
+# And "multi" will use all available servers to calculate average packet loss.
+test_mode = "single"
+
+# Server ID exclude filter
+# Allows the user to exclude or include specific server IDs received by
+# speedtest-go. Values in the exclude option will be skipped over. Values in
+# the include option are the only options that will be picked from.
+#
+# See the list of servers speedtest-go will return at:
+#     https://www.speedtest.net/api/js/servers?engine=js&limit=10
+#
+server_id_exclude = []
+server_id_include = []
 
 # Output format plugins
 [[outputs.prometheus_client]]
@@ -322,6 +356,43 @@ Now that Grafana has access to the data that we are collecting about our network
 You can either make your own custom dashboard from scratch, or you can import my dashboard via the `grafana-dashboard.json` file that is included within this repository. Grafana has a great explanation of how to import a dashboard at: [https://grafana.com/docs/grafana/latest/dashboards/manage-dashboards/#import-a-dashboard](https://grafana.com/docs/grafana/latest/dashboards/manage-dashboards/#import-a-dashboard)
 
 This is not a comprehensive Grafana tutorial. Grafana is extremely powerful! If you are looking for more tutorials, Grafana has some great ones here: [https://grafana.com/tutorials/](https://grafana.com/tutorials/). A quick Google search should also get you some great answers!
+
+## Updating Dependencies
+If you plan on running this tool long-term, you will want to make sure you are keeping the above services up-to-date. Below you will find instructions on how to keep each component updated.
+
+### Updating Telegraf
+
+Run the following on your machine:
+```
+sudo apt-get update
+sudo apt-get install --only-upgrade telegraf
+```
+
+### Updating Grafana
+
+Run the following on your machine:
+```
+sudo apt-get update
+sudo apt-get install --only-upgrade grafana
+```
+
+### Updating Prometheus
+
+Run the following on your machine (replace `<version>` with the version of Prometheus and `<your-user-name>` with your machine's user name):
+
+```
+cd ~
+wget https://github.com/prometheus/prometheus/releases/download/v<version>/prometheus-<version>.linux-arm64.tar.gz
+sudo systemctl status prometheus
+sudo systemctl stop prometheus
+mv /home/<your-user-name>/prometheus /home/<your-user-name>/prometheus.bak
+tar -xvf prometheus-<version>.linux-arm64.tar.gz
+mv prometheus-<version>.linux-arm64 /home/<your-user-name>/prometheus
+cp -r /home/<your-user-name>/prometheus.bak/data /home/<your-user-name>/prometheus/
+cp /home/<your-user-name>/prometheus.bak/prometheus.yml /home/<your-user-name>/prometheus/
+sudo systemctl start prometheus
+```
+
 
 ## Expanding this Project
 There are numerous ways that this project could be expanded or customized.
