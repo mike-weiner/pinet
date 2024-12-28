@@ -202,51 +202,38 @@ Creating a service can be done with the following commands on the command line:
   - **Note:** The text content below can also be found within the `telegraf.conf` file within this repository.
   - This is where you might want to make changes. The configuration file says that we are going to ping `1.1.1.1` (Cloudflare's public DNS) 1 time every 15 seconds and our ping command will timeout after 5 seconds. We will then make the data available in a Prometheus format on port `9091`.
 ```
-# Input plugins
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Global Telegraf Config
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# https://github.com/influxdata/telegraf/blob/master/docs/CONFIGURATION.md#intervals
+[agent]
+  interval = "15s"
 
-# Ping plugin
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Input plugins
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# https://github.com/influxdata/telegraf/blob/master/plugins/inputs/ping/README.md
 [[inputs.ping]]
 urls = ["1.1.1.1", "8.8.8.8"]
-count = 1
-ping_interval = 15.0
-timeout = 5.0
+count = 5
+ping_interval = 1.0
+timeout = 1.0
+deadline = 10
 
-# Speedtest
-# Monitors internet speed using speedtest.net service
+# https://github.com/influxdata/telegraf/blob/master/plugins/inputs/internet_speed/README.md
 [[inputs.internet_speed]]
 interval = "60m"
-
-# Enable to reduce memory usage
 memory_saving_mode = false
-
-# Caches the closest server location
 cache = false
-
-# Number of concurrent connections
-# By default or set to zero, the number of CPU cores is used. Use this to
-# reduce the impact on system performance or to increase the connections on
-# faster connections to ensure the fastest speed.
 connections = 0
-
-# Test mode
-# By default, a single sever is used for testing. This may work for most,
-# however, setting to "multi" will reach out to multiple servers in an
-# attempt to get closer to ideal internet speeds.
-# And "multi" will use all available servers to calculate average packet loss.
 test_mode = "single"
-
-# Server ID exclude filter
-# Allows the user to exclude or include specific server IDs received by
-# speedtest-go. Values in the exclude option will be skipped over. Values in
-# the include option are the only options that will be picked from.
-#
-# See the list of servers speedtest-go will return at:
-#     https://www.speedtest.net/api/js/servers?engine=js&limit=10
-#
 server_id_exclude = []
 server_id_include = []
 
-# Output format plugins
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Output config
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# https://github.com/influxdata/telegraf/blob/master/plugins/outputs/prometheus_client/README.md
 [[outputs.prometheus_client]]
   listen = ":9091"
   metric_version = 2
@@ -403,4 +390,4 @@ There are numerous ways that this project could be expanded or customized.
 - Make some complex visualizations in Grafana. This tutorial only scratched the surface of what is possible with Grafana. Go crazy and make some cool, dynamic panels!
 
 ## Acknowledgements
-- This article ([https://mrkaran.dev/posts/isp-monitoring/](https://mrkaran.dev/posts/isp-monitoring/)) served as the primary inspiration for this project. Great work! 
+- This article ([https://mrkaran.dev/posts/isp-monitoring/](https://mrkaran.dev/posts/isp-monitoring/)) served as the primary inspiration for this project. Great work!
